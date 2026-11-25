@@ -92,6 +92,15 @@ describe("createBooking : créer une réservation", () => {
     expect(res.status).toHaveBeenCalledWith(404);
   });
 
+  test("réserver son propre bateau : 403 (bug corrigé)", async () => {
+    Boat.findByPk.mockResolvedValue(bateau); // bateau.userId = 2
+    const res = mockRes();
+    await controller.createBooking({ body: corps, user: { id: 2 } }, res);
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(Booking.create).not.toHaveBeenCalled();
+    expect(mockTransaction.rollback).toHaveBeenCalled();
+  });
+
   test("trop de voyageurs pour la capacité du bateau : 400", async () => {
     Boat.findByPk.mockResolvedValue(bateau);
     const res = mockRes();

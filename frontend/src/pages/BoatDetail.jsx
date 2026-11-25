@@ -415,8 +415,8 @@ export default function BoatDetail() {
             ) : bookingSuccess ? (
               <div className="mt-4 space-y-3">
                 <p className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
-                  Réservation créée (n°{bookingSuccess.id}). Il ne reste plus
-                  qu'à régler le paiement.
+                  Demande envoyée (n°{bookingSuccess.id}). Le propriétaire
+                  doit l'accepter : vous pourrez ensuite régler le paiement.
                 </p>
                 <Link
                   to={`/mes-messages?with=${boat?.User?.id}&booking=${bookingSuccess.id}`}
@@ -425,10 +425,10 @@ export default function BoatDetail() {
                   💬 Contacter le propriétaire
                 </Link>
                 <Link
-                  to={`/reservations/${bookingSuccess.id}`}
+                  to="/mes-reservations"
                   className="block rounded-lg bg-navy py-2.5 text-center text-sm font-semibold text-white transition hover:bg-navy-light"
                 >
-                  Continuer vers le paiement
+                  Suivre ma demande
                 </Link>
               </div>
             ) : (

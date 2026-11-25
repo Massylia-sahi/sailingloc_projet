@@ -88,6 +88,14 @@ describe("createStripeSession : démarrer un paiement par carte", () => {
     expect(createCheckoutSession).not.toHaveBeenCalled();
   });
 
+  test("réservation pas encore acceptée (en_attente) : 400, paiement refusé (bug corrigé)", async () => {
+    Booking.findByPk.mockResolvedValue(resa({ statut: "en_attente" }));
+    const res = mockRes();
+    await controller.createStripeSession({ params: { bookingId: 1 }, user: { id: 5, role: "locataire" } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(createCheckoutSession).not.toHaveBeenCalled();
+  });
+
   test.each(["confirmee", "annulee", "terminee"])("réservation %s : 400, pas de nouveau paiement", async (statut) => {
     Booking.findByPk.mockResolvedValue(resa({ statut }));
     const res = mockRes();
@@ -199,6 +207,14 @@ describe("PayPal", () => {
     const res = mockRes();
     await controller.createPaypalOrder({ params: { bookingId: 1 }, user: { id: 5, role: "locataire" } }, res);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ orderId: "ORD1", url: "https://paypal.com/a" }));
+  });
+
+  test("createPaypalOrder : 400 si la demande n'est pas encore acceptée (bug corrigé)", async () => {
+    Booking.findByPk.mockResolvedValue(resa({ statut: "en_attente" }));
+    const res = mockRes();
+    await controller.createPaypalOrder({ params: { bookingId: 1 }, user: { id: 5, role: "locataire" } }, res);
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(paypalService.createOrder).not.toHaveBeenCalled();
   });
 
   test("createPaypalOrder : 403 pour un autre utilisateur", async () => {
