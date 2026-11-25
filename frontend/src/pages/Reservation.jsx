@@ -87,6 +87,9 @@ export default function Reservation() {
   const boat = booking.Boat;
   const image = resolveImageUrl(boat?.imageUrl);
   const alreadyPaid = booking.statut === "confirmee";
+  // Paiement possible uniquement après acceptation du propriétaire.
+  const waitingOwner = booking.statut === "en_attente";
+  const notPayable = ["annulee", "terminee"].includes(booking.statut);
 
   return (
     <div className="mx-auto max-w-lg px-6 py-12">
@@ -121,6 +124,21 @@ export default function Reservation() {
       {alreadyPaid ? (
         <div className="mt-6 rounded-xl bg-green-50 px-4 py-4 text-sm text-green-700">
           Cette réservation est déjà confirmée et payée.
+          <Link to="/mes-reservations" className="mt-2 block font-medium text-sky">
+            Voir mes réservations →
+          </Link>
+        </div>
+      ) : waitingOwner ? (
+        <div className="mt-6 rounded-xl bg-amber-50 px-4 py-4 text-sm text-amber-700">
+          Votre demande est en attente de l'acceptation du propriétaire.
+          Le paiement sera possible dès qu'il l'aura acceptée.
+          <Link to="/mes-reservations" className="mt-2 block font-medium text-sky">
+            Voir mes réservations →
+          </Link>
+        </div>
+      ) : notPayable ? (
+        <div className="mt-6 rounded-xl bg-gray-50 px-4 py-4 text-sm text-gray-600">
+          Cette réservation n'est plus payable (annulée ou terminée).
           <Link to="/mes-reservations" className="mt-2 block font-medium text-sky">
             Voir mes réservations →
           </Link>

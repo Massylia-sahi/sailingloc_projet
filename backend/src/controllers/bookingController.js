@@ -56,6 +56,15 @@ exports.createBooking = async (req, res) => {
       });
     }
 
+    // Un propriétaire ne peut pas réserver son propre bateau. La route
+    // annonçait cette règle, mais la vérification n'existait pas.
+    if (boat.userId === req.user.id) {
+      await transaction.rollback();
+      return res.status(403).json({
+        message: "Vous ne pouvez pas réserver votre propre bateau.",
+      });
+    }
+
     // Le nombre de voyageurs déclaré ne doit pas dépasser la capacité du
     // bateau — cette vérification n'existait pas avant : n'importe quel
     // nombre était accepté tel quel.

@@ -299,12 +299,15 @@ exports.createStripeSession = async (req, res) => {
       });
     }
 
-    // Le paiement est autorisé dès que la réservation existe (en_attente)
-    // ou a été explicitement acceptée (acceptee). Bloqué si déjà confirmée,
-    // annulée ou terminée.
-    if (!["en_attente", "acceptee"].includes(booking.statut)) {
+    // Règle métier : on ne paie qu'une réservation ACCEPTÉE par le
+    // propriétaire (promesse affichée au locataire : "vous ne serez débité
+    // qu'en cas d'acceptation"). Avant correction, le paiement était aussi
+    // possible au statut en_attente, donc avant toute réponse du propriétaire.
+    if (booking.statut !== "acceptee") {
       return res.status(400).json({
-        message: "Cette réservation n'est pas en attente de paiement.",
+        message: booking.statut === "en_attente"
+          ? "Le propriétaire n'a pas encore accepté votre demande : le paiement sera possible après son acceptation."
+          : "Cette réservation n'est pas en attente de paiement.",
       });
     }
 
@@ -378,9 +381,12 @@ exports.createPaypalOrder = async (req, res) => {
       });
     }
 
-    if (!["en_attente", "acceptee"].includes(booking.statut)) {
+    // Même règle que pour Stripe : paiement seulement après acceptation.
+    if (booking.statut !== "acceptee") {
       return res.status(400).json({
-        message: "Cette réservation n'est pas en attente de paiement.",
+        message: booking.statut === "en_attente"
+          ? "Le propriétaire n'a pas encore accepté votre demande : le paiement sera possible après son acceptation."
+          : "Cette réservation n'est pas en attente de paiement.",
       });
     }
 
