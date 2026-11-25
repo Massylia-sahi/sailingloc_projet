@@ -1,5 +1,12 @@
 node_modules
 .env
 node_modules
-ackend/node_modules/
+backend/node_modules/
 frontend/node_modules/
+
+# Donnees personnelles et fichiers generes (nettoyage RGPD)
+bdd_export.sql
+*.dump
+backend/uploads/documents/
+backend/uploads/contracts/
+backend/coverage/
